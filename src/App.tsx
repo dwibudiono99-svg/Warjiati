@@ -6,7 +6,7 @@ import { EditorSidebar } from './components/EditorSidebar';
 import { DocumentPreview } from './components/DocumentPreview';
 import { PreviewControls } from './components/PreviewControls';
 import { QuickSignKioskModal } from './components/QuickSignKioskModal';
-import { Check } from 'lucide-react';
+import { Check, ShieldCheck, X, Globe } from 'lucide-react';
 
 const STORAGE_KEY = 'official_report_pro_data_v2';
 
@@ -41,6 +41,42 @@ export default function App() {
   // Kiosk / Tablet Modal state
   const [isKioskOpen, setIsKioskOpen] = useState<boolean>(false);
   const [selectedAttendeeForSign, setSelectedAttendeeForSign] = useState<string | undefined>(undefined);
+
+  // URL Verification banner state for traceable addresses
+  const [verificationBanner, setVerificationBanner] = useState<{
+    show: boolean;
+    noSurat?: string;
+  }>({ show: false });
+
+  // Handle URL query parameters for easy tracing
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+
+      // Tracing view parameter
+      const viewParam = params.get('view');
+      if (viewParam === 'presensi' || viewParam === 'laporan' || viewParam === 'action_plan' || viewParam === 'all') {
+        setViewMode(viewParam);
+      }
+
+      // Tracing kiosk sign mode
+      if (params.get('kiosk') === 'true' || params.get('kiosk') === '1') {
+        setIsKioskOpen(true);
+      }
+
+      // Tracing document verification parameter
+      if (params.get('verify') === '1' || params.get('verify') === 'true') {
+        const no = params.get('no') || state.config.noSurat;
+        setVerificationBanner({
+          show: true,
+          noSurat: decodeURIComponent(no),
+        });
+      }
+    } catch (err) {
+      console.error('Error parsing URL search params', err);
+    }
+  }, []);
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -195,6 +231,44 @@ export default function App() {
         onResetState={handleReset}
         lastSavedTime={lastSavedTime}
       />
+
+      {/* Official Document Verification Banner (shown when accessed via QR or verify link) */}
+      {verificationBanner.show && (
+        <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white px-4 py-3 shadow-md border-b border-emerald-500/40 animate-in slide-in-from-top duration-300">
+          <div className="max-w-[1700px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-500/20 rounded-xl border border-emerald-400/40 text-emerald-300">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-emerald-200">
+                    Dokumen &amp; Presensi Terverifikasi Asli
+                  </span>
+                  <span className="text-[10px] bg-emerald-400/20 text-emerald-300 px-2 py-0.5 rounded-full font-mono border border-emerald-400/30">
+                    Valid TNDE
+                  </span>
+                </div>
+                <p className="text-slate-300 mt-0.5">
+                  Naskah dengan nomor <strong className="text-white font-mono">{verificationBanner.noSurat || state.config.noSurat}</strong> terdaftar resmi pada sistem arsip <strong className="text-white">{state.config.unitKerja}</strong>.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <span className="text-[11px] text-emerald-300/80 font-mono hidden md:inline">
+                {state.config.kota}, {state.config.tanggalCetak || state.config.hariTanggal}
+              </span>
+              <button
+                onClick={() => setVerificationBanner({ show: false })}
+                className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Tutup</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 max-w-[1700px] w-full mx-auto flex flex-col md:flex-row overflow-hidden">

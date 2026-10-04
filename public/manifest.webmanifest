@@ -1,0 +1,19 @@
+{
+  "name": "Sistem Laporan Resmi, Notulensi & Presensi Digital",
+  "short_name": "Laporan & Presensi",
+  "description": "Aplikasi tata naskah dinas, notulensi rapat resmi, matriks action plan, dan lampiran presensi kehadiran dengan tanda tangan digital siap cetak format A4.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e3a8a",
+  "orientation": "any",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

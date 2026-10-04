@@ -9,9 +9,12 @@ import {
   FileDown,
   HelpCircle,
   X,
+  Globe,
   Share2,
+  QrCode,
 } from 'lucide-react';
 import { AppState } from '../types';
+import { ShareTraceModal } from './ShareTraceModal';
 
 interface NavbarProps {
   state: AppState;
@@ -27,6 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   lastSavedTime,
 }) => {
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const handleExportJSON = () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
@@ -227,6 +231,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Tersimpan</span>
             </span>
 
+            {/* Alamat Web & Telusur (Share / QR / Traceable URL) */}
+            <button
+              type="button"
+              onClick={() => setShowShareModal(true)}
+              className="px-3 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-xs font-bold rounded-lg shadow-sm border border-blue-500/50 transition flex items-center gap-1.5"
+              title="Akses & Salin Alamat Web, QR Pindai Presensi, dan Keterlacakan Mesin Telusur"
+            >
+              <div className="relative">
+                <Globe className="w-3.5 h-3.5 text-blue-200" />
+                <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
+                <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+              </div>
+              <span>Alamat Web &amp; Telusur</span>
+            </button>
+
             {/* Print Help Tip */}
             <button
               type="button"
@@ -357,6 +376,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
       )}
+
+      {/* Share & Web Address Tracing Modal */}
+      <ShareTraceModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        state={state}
+      />
     </>
   );
 };
